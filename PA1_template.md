@@ -1,12 +1,8 @@
----
-title: 'Reproducible Research: Peer Assessment1'
-output: pdf_document
-keep_md: yes
----
-
+# Reproducible Research: Peer Assessment 1
 ## Loading and preprocessing the data
 
-```{r}
+
+```r
 #Load the data 
 df <- read.csv("activity.csv")
 #Process/transform the data (if necessary) into a format suitable for your analysis
@@ -15,9 +11,17 @@ df$date <- as.Date(df$date)
 
 ## What is mean total number of steps taken per day?
 
-```{r}
+
+```r
 #Make a histogram of the total number of steps taken each day
 library(ggplot2)
+```
+
+```
+## Warning: package 'ggplot2' was built under R version 3.2.5
+```
+
+```r
 stepsbyday <- aggregate(x = df$steps , by = list(df$date), FUN = sum ,na.rm=TRUE)
 names(stepsbyday) <- c("date","steps")
 plot <- ggplot(stepsbyday,aes(x = steps)) +
@@ -27,26 +31,36 @@ plot <- ggplot(stepsbyday,aes(x = steps)) +
 plot
 ```
 
-```{r}
+![](PA1_template_files/figure-html/unnamed-chunk-2-1.png)<!-- -->
+
+
+```r
 #mean total number of steps taken per day
 mean(stepsbyday$steps, na.rm = TRUE)
 ```
 
-```{r}
+```
+## [1] 9354.23
+```
+
+
+```r
 #median total number of steps taken per day
 median(stepsbyday$steps , na.rm = TRUE)
 ```
 
-```{r echo=FALSE}
-meanstep<-mean(stepsbyday$steps , na.rm = TRUE)
-medianstep<-median(stepsbyday$steps , na.rm = TRUE)
 ```
-Mean total number of steps taken per day is `r meanstep` <br>
-Median total number of steps taken per day is `r medianstep`
+## [1] 10395
+```
+
+
+Mean total number of steps taken per day is 9354.2295082 <br>
+Median total number of steps taken per day is 10395
 
 ## What is the average daily activity pattern?
 
-```{r}
+
+```r
 #Time series plot of the 5-minute interval and the average number of steps taken, averaged across all days 
 averagestepsinterval  <- aggregate(x = df$steps , by = list(df$interval), FUN = mean ,na.rm=TRUE)
 names(averagestepsinterval) <- c("interval","steps")
@@ -56,23 +70,35 @@ avgstepline <- ggplot(averagestepsinterval,aes(interval,steps)) +
 avgstepline 
 ```
 
-```{r}
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
+
+
+```r
 #The 5-min time interval contains the maximum number of steps?
 averagestepsinterval[which.max(averagestepsinterval$steps),c("interval")]
 ```
 
-```{r echo=FALSE}
-maxstep<-averagestepsinterval[which.max(averagestepsinterval$steps),c("interval")]
+```
+## [1] 835
 ```
 
-The 5-min time interval contains the maximum number of steps is `r maxstep`
+
+
+The 5-min time interval contains the maximum number of steps is 835
 
 ## Imputing missing values
 
-```{r}
+
+```r
 #total number of missing values in the dataset
 nrow(df[is.na(df$steps),])
+```
 
+```
+## [1] 2304
+```
+
+```r
 #imputing missing step values with mean step at time interval
 df.imputed <- merge(x = df, y = averagestepsinterval, by = "interval", all.x = TRUE)
 df.imputed[is.na(df.imputed$steps.x),c("steps.x")] <- df.imputed[is.na(df.imputed$steps.x),c("steps.y")]
@@ -95,29 +121,39 @@ histplot <- ggplot(totalstepsday,aes(x = steps)) +
 histplot 
 ```
 
-```{r}
+![](PA1_template_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
+
+
+```r
 #mean total number of steps taken per day
 mean(totalstepsday$steps , na.rm = TRUE)
 ```
 
-```{r}
+```
+## [1] 10766.19
+```
+
+
+```r
 #median total number of steps taken per day
 median(totalstepsday$steps , na.rm = TRUE)
 ```
 
-
-```{r echo=FALSE}
-newmean <-mean(totalstepsday$steps ) 
-newmedian <- median(totalstepsday$steps )
+```
+## [1] 10766.19
 ```
 
-New mean total number of steps taken per day is `r newmean`  <br>
-New median total number of steps taken per day is `r newmedian`
+
+
+
+New mean total number of steps taken per day is 1.0766189\times 10^{4}  <br>
+New median total number of steps taken per day is 1.0766189\times 10^{4}
 
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-```{r}
+
+```r
 #Factor variable with two levels indicating a weekday or weekend.
 df.imputed$weekday <- as.factor(ifelse(weekdays(df.imputed$date) %in% c("Saturday","Sunday"), "Weekend", "Weekday")) 
 avgstepsintervalweekday  <- aggregate(x = df.imputed$steps , by = list(df.imputed$interval,df.imputed$weekday), FUN = mean ,na.rm=TRUE)
@@ -131,4 +167,6 @@ avgstepline <- ggplot(avgstepsintervalweekday,aes(interval,steps)) +
               geom_line(size = 1)
 avgstepline  
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
 
